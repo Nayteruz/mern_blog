@@ -1,6 +1,19 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Dashboard, Home, Projects, SignIn, SignUp } from "./pages";
+
 const App = () => {
-  console.log("app");
-  return <div className="text-3xl text-red-500">App</div>;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<Home />} />
+        <Route path="/sign-in" element={<SignIn />} />
+        <Route path="/sign-up" element={<SignUp />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/projects" element={<Projects />} />
+      </Routes>
+    </BrowserRouter>
+  );
 };
 
 export default App;

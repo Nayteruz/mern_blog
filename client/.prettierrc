@@ -7,6 +7,6 @@
   "quoteProps": "as-needed",
   "jsxSingleQuote": false,
   "arrowParens": "always",
-  "endOfLine": "crlf",
-  "singleAttributePerLine": true
+  "endOfLine": "crlf"
 }
+
