@@ -1,8 +1,6 @@
-import About from "./About";
-import Home from "./Home";
-import Projects from "./Projects";
-import SignUp from "./SignUp";
-import SignIn from "./SignIn";
-import Dashboard from "./Dashboard";
-
-export { About, Home, Projects, SignUp, SignIn, Dashboard };
+export { About } from "./About";
+export { Home } from "./Home";
+export { Projects } from "./Projects";
+export { SignUp } from "./SignUp";
+export { SignIn } from "./SignIn";
+export { Dashboard } from "./Dashboard";
