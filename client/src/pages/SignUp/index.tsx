@@ -95,7 +95,7 @@ export const SignUp = () => {
           </form>
           <div className="flex gap-2 text-sm mt-5">
             <span>У вас уже есть аккаунт?</span>
-            <Link to="/sign-in" className="text-blue-500">
+            <Link to={ROUTES.SIGN_IN} className="text-blue-500">
               Войти
             </Link>
           </div>
