@@ -1,6 +1,7 @@
 import { Footer as FooterFlowbite } from "flowbite-react";
 import { Logo } from "../Logo";
 import { BsGitlab, BsGithub, BsYoutube } from "react-icons/bs";
+import { footerLinks } from "./const";
 
 export const Footer = () => {
   return (
@@ -11,55 +12,22 @@ export const Footer = () => {
             <Logo className="self-center whitespace-nowrap text-lg sm:text-xl font-semibold dark:text-white" />
           </div>
           <div className="grid grid-cols-2 gap-8 mt-4 sm:grid-cols-3">
-            <div>
-              <FooterFlowbite.Title title="About" />
-              <FooterFlowbite.LinkGroup col>
-                <FooterFlowbite.Link
-                  href="#"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Мои проекты
-                </FooterFlowbite.Link>
-                <FooterFlowbite.Link
-                  href="/about"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Blog
-                </FooterFlowbite.Link>
-              </FooterFlowbite.LinkGroup>
-            </div>
-            <div>
-              <FooterFlowbite.Title title="Follow us" />
-              <FooterFlowbite.LinkGroup col>
-                <FooterFlowbite.Link
-                  href="https://github.com/Nayteruz"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Github
-                </FooterFlowbite.Link>
-                <FooterFlowbite.Link
-                  href="#"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Discord
-                </FooterFlowbite.Link>
-              </FooterFlowbite.LinkGroup>
-            </div>
-            <div>
-              <FooterFlowbite.Title title="Legal" />
-              <FooterFlowbite.LinkGroup col>
-                <FooterFlowbite.Link href="#">
-                  Privacy policy
-                </FooterFlowbite.Link>
-                <FooterFlowbite.Link href="#">
-                  Terms &amp; Conditions
-                </FooterFlowbite.Link>
-              </FooterFlowbite.LinkGroup>
-            </div>
+            {footerLinks.map((linkGroup) => (
+              <div key={linkGroup.title}>
+                <FooterFlowbite.Title title={linkGroup.title} />
+                <FooterFlowbite.LinkGroup col>
+                  {linkGroup.links?.map((link) => (
+                    <FooterFlowbite.Link
+                      href={link.link}
+                      target={link?.target || ""}
+                      rel={link?.rel || ""}
+                    >
+                      {link.label}
+                    </FooterFlowbite.Link>
+                  ))}
+                </FooterFlowbite.LinkGroup>
+              </div>
+            ))}
           </div>
         </div>
         <FooterFlowbite.Divider />
