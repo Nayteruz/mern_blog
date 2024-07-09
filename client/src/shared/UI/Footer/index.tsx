@@ -21,6 +21,7 @@ export const Footer = () => {
                       href={link.link}
                       target={link?.target || ""}
                       rel={link?.rel || ""}
+                      key={link.label}
                     >
                       {link.label}
                     </FooterFlowbite.Link>

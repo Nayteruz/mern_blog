@@ -12,6 +12,7 @@ import {
   signInSuccess,
   signInFailure,
 } from "@/app/store/slice/user/userSlice";
+import OAuth from "@/shared/UI/OAuth";
 
 export const SignIn = () => {
   const { error: errorMessage, loading } = useAppSelector(
@@ -96,6 +97,7 @@ export const SignIn = () => {
                 "Войти"
               )}
             </Button>
+            <OAuth />
           </form>
           <div className="flex gap-2 text-sm mt-5">
             <span>У вас нет аккаунта?</span>
