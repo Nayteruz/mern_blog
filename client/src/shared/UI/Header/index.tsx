@@ -7,6 +7,8 @@ import { ROUTES } from "@/shared/const/routes";
 import { useAppSelector } from "@/app/store/hooks";
 import { useAppDispatch } from "@/app/store/hooks";
 import { toggleTheme } from "@/app/store/slice/theme/themeSlice";
+import { signoutUser } from "@/app/store/slice/user/userSlice";
+import { IFetchError } from "@/shared/types";
 
 export const Header = () => {
   const { pathname } = useLocation();
@@ -18,6 +20,25 @@ export const Header = () => {
     { label: "About", path: "/about" },
     { label: "Projects", path: "/projects" },
   ];
+
+  const signout = async () => {
+    try {
+      const res = await fetch("/api/user/signout", {
+        method: "POST",
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        dispatch(signoutUser());
+      } else {
+        console.error(data.message);
+      }
+    } catch (error) {
+      const err = error as IFetchError;
+      console.error(err.message);
+    }
+  };
 
   return (
     <Navbar className="border-b-2">
@@ -60,7 +81,7 @@ export const Header = () => {
               <Dropdown.Item>Profile</Dropdown.Item>
             </Link>
             <Dropdown.Divider />
-            <Dropdown.Item>Sign out</Dropdown.Item>
+            <Dropdown.Item onClick={signout}>Sign out</Dropdown.Item>
           </Dropdown>
         ) : (
           <Link to={ROUTES.SIGN_IN}>

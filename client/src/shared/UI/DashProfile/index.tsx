@@ -3,12 +3,13 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { IFetchError, IFormData } from "@/shared/types";
 import {
-  updateStart,
-  updateSuccess,
-  updateFailure,
+  updateUserStart,
+  updateUserSuccess,
+  updateUserFailure,
 } from "@/app/store/slice/user/userSlice";
 import { Avatar } from "./Avatar";
 import { DeleteButton } from "./DeleteButton";
+import { SignOut } from "./SignOut";
 
 export const DashProfile = () => {
   const {
@@ -29,16 +30,16 @@ export const DashProfile = () => {
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    dispatch(updateStart());
+    dispatch(updateUserStart());
     setUserUpdateSuccess("");
 
     if (Object.keys(formData).length === 0) {
-      dispatch(updateFailure("Нет заполненных полей"));
+      dispatch(updateUserFailure("Нет заполненных полей"));
       return;
     }
 
     if (isImageUploading) {
-      dispatch(updateFailure("Дождитесь загрузки картинки"));
+      dispatch(updateUserFailure("Дождитесь загрузки картинки"));
       return;
     }
 
@@ -53,15 +54,15 @@ export const DashProfile = () => {
       const data = await res.json();
 
       if (res.ok) {
-        dispatch(updateSuccess(data));
+        dispatch(updateUserSuccess(data));
         setUserUpdateSuccess("Профиль успешно обновлен");
       } else {
-        dispatch(updateFailure(data.message));
+        dispatch(updateUserFailure(data.message));
       }
     } catch (error) {
       const err = error as IFetchError;
 
-      dispatch(updateFailure(err.message));
+      dispatch(updateUserFailure(err.message));
     } finally {
       setFormData({});
     }
@@ -108,7 +109,7 @@ export const DashProfile = () => {
       </form>
       <div className="text-red-500 flex justify-between mt-5">
         <DeleteButton user={currentUser} />
-        <span className="cursor-pointer">Выйти</span>
+        <SignOut />
       </div>
       {userUpdateSuccess && (
         <Alert color="success" className="mt-5">
