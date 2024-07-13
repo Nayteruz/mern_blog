@@ -1,5 +1,5 @@
 import { Button, TextInput, Alert } from "flowbite-react";
-import { useEffect, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import {
   getDownloadURL,
   getStorage,
@@ -7,18 +7,78 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "@/app/firebase";
-import { useAppSelector } from "@/app/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { CircularProgress } from "../CircularProgress";
+import { IFetchError, IFormData } from "@/shared/types";
+import {
+  updateStart,
+  updateSuccess,
+  updateFailure,
+} from "@/app/store/slice/user/userSlice";
 
 export const DashProfile = () => {
-  const { currentUser } = useAppSelector((state) => state.user);
+  const { currentUser, loading } = useAppSelector((state) => state.user);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageFileUrl, setImageFileUrl] = useState<string | null>(null);
-  const [imageFileUploadProgress, setImageFileUploadProgress] = useState<
-    number | null
-  >(null);
+  const [imageFileUploadProgress, setImageFileUploadProgress] =
+    useState<number>(0);
   const [imageFileUploadError, setImageFileUploadError] = useState<string>("");
+  const [isImageUploading, setIsImageUploading] = useState<boolean>(false);
   const filePickerRef = useRef<HTMLInputElement>(null);
+  const [formData, setFormData] = useState<IFormData>({});
+  const [userUpdateSuccess, setUserUpdateSuccess] = useState<string | null>(
+    null,
+  );
+  const [userUpdateError, setUserUpdateError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
+  };
+
+  const onSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setUserUpdateSuccess("");
+    setUserUpdateError("");
+
+    if (Object.keys(formData).length === 0) {
+      setUserUpdateError("Нет заполненных полей");
+      return;
+    }
+
+    if (isImageUploading) {
+      setUserUpdateError("Дождитесь загрузки картинки");
+      return;
+    }
+
+    try {
+      dispatch(updateStart());
+      const res = await fetch(`/api/user/update/${currentUser?._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        dispatch(updateSuccess(data));
+        setUserUpdateSuccess("Профиль успешно обновлен");
+      } else {
+        dispatch(updateFailure(data.message));
+        setUserUpdateError(data.message);
+      }
+    } catch (error) {
+      const err = error as IFetchError;
+      const errMessage = err.message;
+
+      dispatch(updateFailure(errMessage));
+      setUserUpdateError(errMessage);
+    } finally {
+      setFormData({});
+    }
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -40,6 +100,7 @@ export const DashProfile = () => {
     }
 
     setImageFileUploadError("");
+    setIsImageUploading(true);
     const storage = getStorage(app);
     const fileName = new Date().getTime() + imageFile.name;
     const storageRef = ref(storage, fileName);
@@ -55,14 +116,15 @@ export const DashProfile = () => {
       () => {
         const errString = "Could not upload image (File must be less than 2MB)";
         setImageFileUploadError(errString);
-        setImageFileUploadProgress(null);
+        setIsImageUploading(false);
         setImageFile(null);
         setImageFileUrl(null);
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
           setImageFileUrl(downloadUrl);
-          setImageFileUploadProgress(null);
+          setIsImageUploading(false);
+          setFormData({ ...formData, profilePicture: downloadUrl });
         });
       },
     );
@@ -71,7 +133,7 @@ export const DashProfile = () => {
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
       <h1 className="my-7 text-center font-semibold text-3xl">Профиль</h1>
-      <form className="flex flex-col gap-4">
+      <form className="flex flex-col gap-4" onSubmit={onSubmit}>
         <input
           ref={filePickerRef}
           type="file"
@@ -86,9 +148,9 @@ export const DashProfile = () => {
           <img
             src={imageFileUrl || currentUser?.profilePicture}
             alt="user"
-            className={`rounded-full w-full h-full object-cover border-8 border-[lightgray] ${imageFileUploadProgress && imageFileUploadProgress < 100 ? "opacity-30" : ""}`}
+            className={`rounded-full w-full h-full object-cover border-8 border-[lightgray] ${isImageUploading && imageFileUploadProgress < 100 ? "opacity-30" : ""}`}
           />
-          {imageFileUploadProgress && (
+          {isImageUploading && (
             <div className="absolute inset-0 bg-[rgba(0,0,0,0.5)]">
               <CircularProgress
                 value={imageFileUploadProgress}
@@ -115,16 +177,28 @@ export const DashProfile = () => {
           type="text"
           id="username"
           placeholder="Имя"
-          defaultValue={currentUser?.username}
+          defaultValue={currentUser?.username || ""}
+          onChange={onChange}
         />
         <TextInput
           type="email"
           id="email"
           placeholder="Почта"
-          defaultValue={currentUser?.email}
+          defaultValue={currentUser?.email || ""}
+          onChange={onChange}
         />
-        <TextInput type="password" id="password" placeholder="Пароль" />
-        <Button type="submit" gradientDuoTone="purpleToBlue" outline>
+        <TextInput
+          type="password"
+          id="password"
+          placeholder="Пароль"
+          onChange={onChange}
+        />
+        <Button
+          type="submit"
+          disabled={loading}
+          gradientDuoTone="purpleToBlue"
+          outline
+        >
           Обновить данные
         </Button>
       </form>
@@ -132,6 +206,16 @@ export const DashProfile = () => {
         <span className="cursor-pointer">Удалить аккаунт</span>
         <span className="cursor-pointer">Выйти</span>
       </div>
+      {userUpdateSuccess && (
+        <Alert color="success" className="mt-5">
+          {userUpdateSuccess}
+        </Alert>
+      )}
+      {userUpdateError && (
+        <Alert color="failure" className="mt-5">
+          {userUpdateError}
+        </Alert>
+      )}
     </div>
   );
 };
