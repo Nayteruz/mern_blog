@@ -9,7 +9,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Header />
-      <div className="flex-1 flex">
+      <div className="flex-1 flex flex-col">
         <Routes>
           <Route path={ROUTES.HOME} element={<Home />} />
           <Route path={ROUTES.ABOUT} element={<About />} />
