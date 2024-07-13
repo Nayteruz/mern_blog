@@ -6,6 +6,7 @@ export interface ICurrentUser {
   email: string;
   password: string;
   profilePicture: string;
+  isAdmin: boolean;
 }
 
 interface IState {

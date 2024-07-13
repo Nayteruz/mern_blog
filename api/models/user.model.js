@@ -18,7 +18,11 @@ const schema = new mongoose.Schema({
   profilePicture: {
     type: String,
     default: "https://www.pngall.com/wp-content/uploads/12/Avatar-Profile-Vector.png",
-  }
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  },
 }, { timestamps: true }
 );
 
