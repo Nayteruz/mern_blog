@@ -4,6 +4,8 @@ import { Footer } from "./shared/UI/Footer";
 import PrivateRoute from "./shared/UI/PrivateRoute";
 import { About, Dashboard, Home, Projects, SignIn, SignUp } from "./pages";
 import { ROUTES } from "./shared/const/routes";
+import OnlyAdminPrivateRoute from "./shared/UI/OnlyAdminPrivateRoute";
+import { CreatePost } from "./pages/CreatePost";
 
 const App = () => {
   return (
@@ -18,7 +20,9 @@ const App = () => {
           <Route element={<PrivateRoute />}>
             <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
           </Route>
-
+          <Route element={<OnlyAdminPrivateRoute />}>
+            <Route path={ROUTES.CREATE_POST} element={<CreatePost />} />
+          </Route>
           <Route path={ROUTES.PROJECTS} element={<Projects />} />
         </Routes>
       </div>

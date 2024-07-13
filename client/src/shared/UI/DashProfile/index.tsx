@@ -10,6 +10,8 @@ import {
 import { Avatar } from "./Avatar";
 import { DeleteButton } from "./DeleteButton";
 import { SignOut } from "./SignOut";
+import { Link } from "react-router-dom";
+import { ROUTES } from "@/shared/const/routes";
 
 export const DashProfile = () => {
   const {
@@ -100,12 +102,23 @@ export const DashProfile = () => {
         />
         <Button
           type="submit"
-          disabled={loading}
+          disabled={loading || isImageUploading}
           gradientDuoTone="purpleToBlue"
           outline
         >
-          Обновить данные
+          {loading ? "Обновление..." : "Обновить данные"}
         </Button>
+        {currentUser?.isAdmin && (
+          <Link to={ROUTES.CREATE_POST}>
+            <Button
+              type="button"
+              gradientDuoTone="purpleToPink"
+              className="w-full"
+            >
+              Создать пост
+            </Button>
+          </Link>
+        )}
       </form>
       <div className="text-red-500 flex justify-between mt-5">
         <DeleteButton user={currentUser} />
