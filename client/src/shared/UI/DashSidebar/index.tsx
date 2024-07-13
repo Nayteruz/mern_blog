@@ -24,14 +24,20 @@ export const DashSidebar = () => {
               icon={HiUser}
               label={"User"}
               labelColor="dark"
-              as="span"
+              as="div"
             >
-              Profile
+              Профиль
             </Sidebar.Item>
           </Link>
-          <Sidebar.Item icon={HiArrowSmRight} className="cursor-pointer">
-            Sign Out
-          </Sidebar.Item>
+          <Link to="#">
+            <Sidebar.Item
+              icon={HiArrowSmRight}
+              className="cursor-pointer"
+              as="div"
+            >
+              Выйти
+            </Sidebar.Item>
+          </Link>
         </Sidebar.ItemGroup>
       </Sidebar.Items>
     </Sidebar>
