@@ -1,15 +1,11 @@
 import { Alert, Button, FileInput, Select, TextInput } from "flowbite-react";
-import { useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
-import { app } from "@/app/firebase";
 import { CircularProgress } from "@/shared/UI/CircularProgress";
+import { useUploadImage } from "@/shared/hooks/useUploadImage";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@/shared/const/routes";
 
 type TFormData = {
   title: string;
@@ -20,9 +16,14 @@ type TFormData = {
 
 export const CreatePost = () => {
   const [file, setFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
-  const [uploadError, setUploadError] = useState<string | null>(null);
   const [formData, setFormData] = useState<TFormData>({} as TFormData);
+  const [publishError, setPublishError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { uploadProgress, uploadError, onUpload, uploadedFile } =
+    useUploadImage({
+      file,
+      setFile,
+    });
 
   const onChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files as FileList;
@@ -35,50 +36,41 @@ export const CreatePost = () => {
     }
   };
 
-  const onUpload = async () => {
+  useEffect(() => {
+    if (uploadedFile) {
+      setFormData((prev) => ({ ...prev, image: uploadedFile }));
+    }
+  }, [uploadedFile]);
+
+  const onSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+
     try {
-      if (!file) {
-        setUploadError("Please select a image");
+      const res = await fetch("/api/post/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+
+      if (!res.ok || data.success === false) {
+        setPublishError(data.message);
         return;
       }
 
-      setUploadError(null);
-      const storage = getStorage(app);
-      const filename = new Date().getTime() + file.name;
-      const storageRef = ref(storage, filename);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setUploadProgress(Number(progress.toFixed(0)));
-        },
-        () => {
-          setUploadError("Image uploading failed");
-          setUploadProgress(null);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setUploadProgress(null);
-            setUploadError(null);
-            setFile(null);
-            setFormData((prev) => ({ ...prev, image: downloadURL }));
-          });
-        },
-      );
+      setPublishError(null);
+      navigate(`${ROUTES.POST}/${data.slug}`);
     } catch (error) {
-      setUploadError("Image uploading failed");
-      setUploadProgress(null);
-      console.log(error);
+      setPublishError("Something went wrong. Please try again later.");
     }
   };
 
   return (
     <div className="p-3 max-w-3xl mx-auto w-full">
       <h1 className="text-center text-3xl my-7 font-semibold">Создать пост</h1>
-      <form className="flex flex-col gap-4">
+      <form className="flex flex-col gap-4" onSubmit={onSubmit}>
         <div className="flex flex-col gap-4 sm:flex-row justify-between">
           <TextInput
             type="text"
@@ -86,8 +78,15 @@ export const CreatePost = () => {
             required
             id="title"
             className="flex-1"
+            onChange={(e) =>
+              setFormData({ ...formData, title: e.target.value })
+            }
           />
-          <Select>
+          <Select
+            onChange={(e) =>
+              setFormData({ ...formData, category: e.target.value })
+            }
+          >
             <option value="unvategorized">Выбрать категорию</option>
             <option value="javascript">Javascript</option>
             <option value="reactjs">React.js</option>
@@ -135,6 +134,12 @@ export const CreatePost = () => {
         <Button type="submit" gradientDuoTone="purpleToPink">
           Опубликовать
         </Button>
+
+        {publishError && (
+          <Alert color="failure" className="mt-5">
+            {publishError}
+          </Alert>
+        )}
       </form>
     </div>
   );
