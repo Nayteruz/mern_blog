@@ -16,9 +16,9 @@ export const Header = () => {
   const { theme } = useAppSelector((state) => state.theme);
   const dispatch = useAppDispatch();
   const links: { label: string; path: string }[] = [
-    { label: "Home", path: "/" },
-    { label: "About", path: "/about" },
-    { label: "Projects", path: "/projects" },
+    { label: "Главная", path: ROUTES.HOME },
+    { label: "О нас", path: ROUTES.ABOUT },
+    { label: "Проекты", path: ROUTES.PROJECTS },
   ];
 
   const signout = async () => {
@@ -46,7 +46,7 @@ export const Header = () => {
       <form>
         <TextInput
           type="text"
-          placeholder="Search..."
+          placeholder="Поиск..."
           rightIcon={AiOutlineSearch}
           className="hidden lg:inline focus-visible:outline-none"
         />
@@ -78,15 +78,15 @@ export const Header = () => {
               </span>
             </Dropdown.Header>
             <Link to={`${ROUTES.DASHBOARD}?tab=profile`}>
-              <Dropdown.Item>Profile</Dropdown.Item>
+              <Dropdown.Item>Профиль</Dropdown.Item>
             </Link>
             <Dropdown.Divider />
-            <Dropdown.Item onClick={signout}>Sign out</Dropdown.Item>
+            <Dropdown.Item onClick={signout}>Выйти</Dropdown.Item>
           </Dropdown>
         ) : (
           <Link to={ROUTES.SIGN_IN}>
             <Button gradientDuoTone="purpleToBlue" outline>
-              Sign In
+              Войти
             </Button>
           </Link>
         )}
