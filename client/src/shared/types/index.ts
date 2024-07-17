@@ -13,3 +13,21 @@ export interface IFormData {
 export interface IFetchError {
   message: string;
 }
+
+export interface IPost {
+  _id: string;
+  category: string;
+  content: string;
+  image: string;
+  slug: string;
+  userId: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IFetchPosts {
+  posts: IPost[];
+  totalPosts: number;
+  lastMonthPosts: number;
+}
