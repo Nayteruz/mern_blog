@@ -1,13 +1,16 @@
 import { useAppSelector } from "@/app/store/hooks";
 import { IFetchError, IFetchPosts, IPost } from "@/shared/types";
-import { Table } from "flowbite-react";
+import { Button, Modal, Table } from "flowbite-react";
 import { useEffect, useState } from "react";
+import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { Link } from "react-router-dom";
 
 export const DashPosts = () => {
   const { currentUser } = useAppSelector((state) => state.user);
   const [userPosts, setUserPosts] = useState<IPost[]>([]);
   const [showMore, setShowMore] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [postIdToDelete, setPostIdToDelete] = useState("");
 
   const onShowMore = async () => {
     const startIndex = userPosts.length;
@@ -26,6 +29,32 @@ export const DashPosts = () => {
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const onDelete = async () => {
+    setShowModal(false);
+
+    try {
+      const res = await fetch(
+        `/api/post/deletepost/${postIdToDelete}/${currentUser?._id}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setUserPosts((prevPosts) =>
+          prevPosts.filter((post) => post._id !== postIdToDelete),
+        );
+      } else {
+        console.log(data.message);
+      }
+    } catch (error) {
+      const err = error as IFetchError;
+      console.log(err.message);
     }
   };
 
@@ -97,7 +126,13 @@ export const DashPosts = () => {
                   </Table.Cell>
                   <Table.Cell>{post.category}</Table.Cell>
                   <Table.Cell>
-                    <span className="text-red-500 font-medium hover:underline cursor-pointer">
+                    <span
+                      onClick={() => {
+                        setShowModal(true);
+                        setPostIdToDelete(post._id);
+                      }}
+                      className="text-red-500 font-medium hover:underline cursor-pointer"
+                    >
                       Удалить
                     </span>
                   </Table.Cell>
@@ -125,6 +160,30 @@ export const DashPosts = () => {
       ) : (
         <p>Вы не написали еще ни одного поста</p>
       )}
+      <Modal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        popup
+        size="md"
+      >
+        <Modal.Header />
+        <Modal.Body>
+          <div className="text-center">
+            <HiOutlineExclamationCircle className="w-14 h-14 mx-auto mb-4 text-gray-400 dark:text-gray-200" />
+            <h3 className="mb-5 text-lg text-gray-500 dark:text-gray-400">
+              Вы действительно хотите удалить пост?
+            </h3>
+            <div className="flex md:flex-row flex-col justify-center gap-4 ">
+              <Button color="failure" onClick={onDelete}>
+                Да, я уверен
+              </Button>
+              <Button color="gray" onClick={() => setShowModal(false)}>
+                Нет, передумал
+              </Button>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
