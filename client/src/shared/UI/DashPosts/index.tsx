@@ -7,6 +7,27 @@ import { Link } from "react-router-dom";
 export const DashPosts = () => {
   const { currentUser } = useAppSelector((state) => state.user);
   const [userPosts, setUserPosts] = useState<IPost[]>([]);
+  const [showMore, setShowMore] = useState(true);
+
+  const onShowMore = async () => {
+    const startIndex = userPosts.length;
+
+    try {
+      const res = await fetch(
+        `/api/post/getposts?userId=${currentUser?._id}&startIndex=${startIndex}`,
+      );
+      const data = await res.json();
+
+      if (res.ok) {
+        setUserPosts((prevPosts) => [...prevPosts, ...data.posts]);
+        if (data.posts.length < 9) {
+          setShowMore(false);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -18,6 +39,9 @@ export const DashPosts = () => {
 
         if (res.ok) {
           setUserPosts(data.posts);
+          if (data.posts.length < 9) {
+            setShowMore(false);
+          }
         }
       } catch (error) {
         const err = error as IFetchError;
@@ -29,6 +53,7 @@ export const DashPosts = () => {
       fetchPosts();
     }
   }, [currentUser?._id, currentUser?.isAdmin]);
+
   return (
     <div className="table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500">
       {currentUser?.isAdmin && userPosts.length > 0 ? (
@@ -88,6 +113,14 @@ export const DashPosts = () => {
               ))}
             </Table.Body>
           </Table>
+          {showMore && (
+            <button
+              onClick={onShowMore}
+              className="w-full text-teal-500 self-center text-sm py-7"
+            >
+              Показать еще
+            </button>
+          )}
         </>
       ) : (
         <p>Вы не написали еще ни одного поста</p>
