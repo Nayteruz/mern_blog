@@ -7,5 +7,7 @@ export const ROUTES = {
   PROJECTS: "/projects",
   CREATE_POST: "/create-post",
   POST: "/post",
+  POST_SLUG: "/post/:postSlug",
   UPDATE_POST: "/update-post/:postId",
+  SEARCH: "/search",
 } as const;
