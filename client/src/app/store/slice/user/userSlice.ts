@@ -7,6 +7,8 @@ export interface ICurrentUser {
   password: string;
   profilePicture: string;
   isAdmin: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface IState {

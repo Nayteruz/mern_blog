@@ -1,3 +1,5 @@
+import { ICurrentUser } from "@/app/store/slice/user/userSlice";
+
 export interface IErrorServerData {
   message: string;
   status: number;
@@ -38,4 +40,10 @@ export interface IFetchPosts {
   posts: IPost[];
   totalPosts: number;
   lastMonthPosts: number;
+}
+
+export interface IFetchUsers {
+  users: ICurrentUser[];
+  totalUsers: number;
+  lastMonthUsers: number;
 }

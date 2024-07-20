@@ -1,10 +1,15 @@
-import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
-import { signoutUser } from "@/app/store/slice/user/userSlice";
+import { useEffect, useState } from "react";
+import { Sidebar } from "flowbite-react";
 import { ROUTES } from "@/shared/const/routes";
 import { IFetchError } from "@/shared/types";
-import { Sidebar } from "flowbite-react";
-import { useEffect, useState } from "react";
-import { HiUser, HiArrowSmRight, HiDocumentText } from "react-icons/hi";
+import { signoutUser } from "@/app/store/slice/user/userSlice";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
+import {
+  HiUser,
+  HiArrowSmRight,
+  HiDocumentText,
+  HiOutlineUserGroup,
+} from "react-icons/hi";
 import { Link, useLocation } from "react-router-dom";
 
 export const DashSidebar = () => {
@@ -54,15 +59,26 @@ export const DashSidebar = () => {
             </Sidebar.Item>
           </Link>
           {currentUser?.isAdmin && (
-            <Link to={`${ROUTES.DASHBOARD}?tab=posts`}>
-              <Sidebar.Item
-                active={tab === "posts"}
-                icon={HiDocumentText}
-                as="div"
-              >
-                Посты
-              </Sidebar.Item>
-            </Link>
+            <>
+              <Link to={`${ROUTES.DASHBOARD}?tab=posts`}>
+                <Sidebar.Item
+                  active={tab === "posts"}
+                  icon={HiDocumentText}
+                  as="div"
+                >
+                  Посты
+                </Sidebar.Item>
+              </Link>
+              <Link to={`${ROUTES.DASHBOARD}?tab=users`}>
+                <Sidebar.Item
+                  active={tab === "users"}
+                  icon={HiOutlineUserGroup}
+                  as="div"
+                >
+                  Пользователи
+                </Sidebar.Item>
+              </Link>
+            </>
           )}
           <Link to="#">
             <Sidebar.Item

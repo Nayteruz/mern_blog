@@ -1,4 +1,11 @@
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Alert } from "flowbite-react";
 import {
   getDownloadURL,
@@ -7,8 +14,8 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "@/app/firebase";
-import { CircularProgress } from "../../CircularProgress";
 import { IFormData } from "@/shared/types";
+import { CircularProgress } from "@/shared/UI/CircularProgress";
 
 interface IAvatarProps {
   imageUrl: string;
@@ -38,16 +45,12 @@ export const Avatar = ({
     }
   };
 
-  useEffect(() => {
-    if (imageFile) {
-      uploadImage();
-    }
-  }, [imageFile]);
-
-  const uploadImage = async () => {
+  const uploadImage = useCallback(async () => {
     if (!imageFile) {
       return;
     }
+
+    console.log("upload image");
 
     setImageFileUploadError("");
     setIsUploading(true);
@@ -78,7 +81,11 @@ export const Avatar = ({
         });
       },
     );
-  };
+  }, [imageFile, setFormData, setIsUploading]);
+
+  useEffect(() => {
+    uploadImage();
+  }, [imageFile, uploadImage]);
 
   return (
     <>

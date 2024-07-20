@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { Link } from "react-router-dom";
 
+const MAX_POSTS = 9;
+
 export const DashPosts = () => {
   const { currentUser } = useAppSelector((state) => state.user);
   const [userPosts, setUserPosts] = useState<IPost[]>([]);
@@ -23,7 +25,7 @@ export const DashPosts = () => {
 
       if (res.ok) {
         setUserPosts((prevPosts) => [...prevPosts, ...data.posts]);
-        if (data.posts.length < 9) {
+        if (data.posts.length < MAX_POSTS) {
           setShowMore(false);
         }
       }
@@ -62,13 +64,13 @@ export const DashPosts = () => {
     const fetchPosts = async () => {
       try {
         const res = await fetch(
-          `/api/post/getposts?userId=${currentUser?._id}`,
+          `/api/post/getposts?userId=${currentUser?._id}&limit=${MAX_POSTS}`,
         );
         const data: IFetchPosts = await res.json();
 
         if (res.ok) {
           setUserPosts(data.posts);
-          if (data.posts.length < 9) {
+          if (data.posts.length < MAX_POSTS) {
             setShowMore(false);
           }
         }

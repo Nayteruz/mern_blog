@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { DashPosts } from "@/shared/UI/DashPosts";
-import { DashSidebar } from "@/shared/UI/DashSidebar";
-import { DashProfile } from "@/shared/UI/DashProfile";
+import { DashPosts } from "./DashPosts";
+import { DashSidebar } from "./DashSidebar";
+import { DashProfile } from "./DashProfile";
+import { DashUsers } from "./DashUsers";
 
 export const Dashboard = () => {
   const location = useLocation();
@@ -21,6 +22,7 @@ export const Dashboard = () => {
       </div>
       {tab === "profile" && <DashProfile />}
       {tab === "posts" && <DashPosts />}
+      {tab === "users" && <DashUsers />}
     </div>
   );
 };
