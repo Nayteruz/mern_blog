@@ -7,4 +7,5 @@ export const ROUTES = {
   PROJECTS: "/projects",
   CREATE_POST: "/create-post",
   POST: "/post",
+  UPDATE_POST: "/update-post/:postId",
 } as const;

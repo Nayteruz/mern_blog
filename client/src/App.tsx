@@ -6,6 +6,7 @@ import { About, Dashboard, Home, Projects, SignIn, SignUp } from "./pages";
 import { ROUTES } from "./shared/const/routes";
 import OnlyAdminPrivateRoute from "./shared/UI/OnlyAdminPrivateRoute";
 import { CreatePost } from "./pages/CreatePost";
+import { UpdatePost } from "./pages/UpdatePost";
 
 const App = () => {
   return (
@@ -22,6 +23,7 @@ const App = () => {
           </Route>
           <Route element={<OnlyAdminPrivateRoute />}>
             <Route path={ROUTES.CREATE_POST} element={<CreatePost />} />
+            <Route path={ROUTES.UPDATE_POST} element={<UpdatePost />} />
           </Route>
           <Route path={ROUTES.PROJECTS} element={<Projects />} />
         </Routes>

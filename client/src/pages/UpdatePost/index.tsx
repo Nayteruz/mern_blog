@@ -4,11 +4,14 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { CircularProgress } from "@/shared/UI/CircularProgress";
 import { useUploadImage } from "@/shared/hooks/useUploadImage";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ROUTES } from "@/shared/const/routes";
+import { useAppSelector } from "@/app/store/hooks";
 import { TFormData } from "@/shared/types";
 
-export const CreatePost = () => {
+export const UpdatePost = () => {
+  const { postId } = useParams();
+  const { currentUser } = useAppSelector((state) => state.user);
   const [file, setFile] = useState<File | null>(null);
   const [formData, setFormData] = useState<TFormData>({} as TFormData);
   const [publishError, setPublishError] = useState<string | null>(null);
@@ -36,17 +39,42 @@ export const CreatePost = () => {
     }
   }, [uploadedFile]);
 
+  useEffect(() => {
+    try {
+      const fetchPost = async () => {
+        const res = await fetch(`/api/post/getposts?postId=${postId}`);
+        const data = await res.json();
+
+        if (res.ok) {
+          setPublishError(null);
+          setFormData(data.posts[0]);
+        } else {
+          console.log(data.message);
+          setPublishError(data.message);
+          return;
+        }
+      };
+
+      fetchPost();
+    } catch (error) {
+      console.log(error);
+    }
+  }, [postId]);
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     try {
-      const res = await fetch("/api/post/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `/api/post/updatepost/${formData._id}/${currentUser?._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
         },
-        body: JSON.stringify(formData),
-      });
+      );
       const data = await res.json();
 
       if (!res.ok || data.success === false) {
@@ -63,7 +91,9 @@ export const CreatePost = () => {
 
   return (
     <div className="p-3 max-w-3xl mx-auto w-full">
-      <h1 className="text-center text-3xl my-7 font-semibold">Создать пост</h1>
+      <h1 className="text-center text-3xl my-7 font-semibold">
+        Редактировать пост
+      </h1>
       <form className="flex flex-col gap-4" onSubmit={onSubmit}>
         <div className="flex flex-col gap-4 sm:flex-row justify-between">
           <TextInput
@@ -75,11 +105,13 @@ export const CreatePost = () => {
             onChange={(e) =>
               setFormData({ ...formData, title: e.target.value })
             }
+            value={formData.title}
           />
           <Select
             onChange={(e) =>
               setFormData({ ...formData, category: e.target.value })
             }
+            value={formData.category}
           >
             <option value="unvategorized">Выбрать категорию</option>
             <option value="javascript">Javascript</option>
@@ -124,9 +156,10 @@ export const CreatePost = () => {
           onChange={(value) => {
             setFormData({ ...formData, content: value });
           }}
+          value={formData.content}
         />
         <Button type="submit" gradientDuoTone="purpleToPink">
-          Опубликовать
+          Отредактировать пост
         </Button>
 
         {publishError && (

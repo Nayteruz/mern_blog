@@ -10,6 +10,14 @@ export interface IFormData {
   profilePicture?: string;
 }
 
+export type TFormData = {
+  _id?: string;
+  title: string;
+  content: string;
+  category: string;
+  image: string;
+};
+
 export interface IFetchError {
   message: string;
 }
