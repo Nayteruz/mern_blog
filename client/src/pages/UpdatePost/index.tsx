@@ -22,23 +22,6 @@ export const UpdatePost = () => {
       setFile,
     });
 
-  const onChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files as FileList;
-    const file = files[0];
-
-    if (file) {
-      setFile(file);
-    } else {
-      setFile(null);
-    }
-  };
-
-  useEffect(() => {
-    if (uploadedFile) {
-      setFormData((prev) => ({ ...prev, image: uploadedFile }));
-    }
-  }, [uploadedFile]);
-
   useEffect(() => {
     try {
       const fetchPost = async () => {
@@ -61,12 +44,30 @@ export const UpdatePost = () => {
     }
   }, [postId]);
 
+  const onChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files as FileList;
+    const file = files[0] || null;
+
+    setFile(file);
+  };
+
+  useEffect(() => {
+    if (uploadedFile) {
+      setFormData((prev) => ({ ...prev, image: uploadedFile }));
+    }
+  }, [uploadedFile]);
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     try {
+      if (!formData._id) {
+        setPublishError("Not corrected post id");
+        return;
+      }
+
       const res = await fetch(
-        `/api/post/updatepost/${formData._id}/${currentUser?._id}`,
+        `/api/post/updatepost/${formData._id!}/${currentUser?._id}`,
         {
           method: "PUT",
           headers: {
@@ -103,15 +104,15 @@ export const UpdatePost = () => {
             id="title"
             className="flex-1"
             onChange={(e) =>
-              setFormData({ ...formData, title: e.target.value })
+              setFormData((prev) => ({ ...prev, title: e.target.value }))
             }
-            value={formData.title}
+            value={formData?.title}
           />
           <Select
             onChange={(e) =>
-              setFormData({ ...formData, category: e.target.value })
+              setFormData((prev) => ({ ...prev, category: e.target.value }))
             }
-            value={formData.category}
+            value={formData?.category}
           >
             <option value="unvategorized">Выбрать категорию</option>
             <option value="javascript">Javascript</option>
@@ -154,9 +155,9 @@ export const UpdatePost = () => {
           placeholder="Текст поста"
           className="h-72 mb-12"
           onChange={(value) => {
-            setFormData({ ...formData, content: value });
+            setFormData((prev) => ({ ...prev, content: value }));
           }}
-          value={formData.content}
+          value={formData?.content}
         />
         <Button type="submit" gradientDuoTone="purpleToPink">
           Отредактировать пост
