@@ -1,0 +1,113 @@
+import { useAppSelector } from "@/app/store/hooks";
+import { ROUTES } from "@/shared/const/routes";
+import { IFetchError } from "@/shared/types";
+import { Alert, Button, Textarea } from "flowbite-react";
+import { FormEvent, useState } from "react";
+import { Link } from "react-router-dom";
+
+interface ICommentsProps {
+  postId: string;
+}
+
+const MAX_CHARACTERS = 200;
+
+export const Comments = ({ postId }: ICommentsProps) => {
+  const { currentUser } = useAppSelector((state) => state.user);
+  const [comment, setComment] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [commentError, setCommentError] = useState("");
+
+  const onSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+
+    if (comment.length > MAX_CHARACTERS) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/comment/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: comment,
+          postId,
+          userId: currentUser?._id,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setComment("");
+        setCommentError("");
+      }
+    } catch (error) {
+      const err = error as IFetchError;
+      setCommentError(err.message);
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto w-full p-3">
+      {currentUser ? (
+        <div className="flex items-center gap-1 my-5 text-gray-500 text-sm">
+          <p>Авторизован как:</p>
+          {currentUser.profilePicture && (
+            <img
+              src={currentUser.profilePicture}
+              alt={currentUser?.username}
+              className="h-5 w-5 object-cover rounded-full"
+            />
+          )}
+          <Link
+            to={`${ROUTES.DASHBOARD}?tab=profile`}
+            className="text-xs text-cyan-600 hover:underline"
+          >
+            @{currentUser.username}
+          </Link>
+        </div>
+      ) : (
+        <div className="text-sm text-teal-500 my-5 flex gap-1">
+          Что бы оставлять комментарии необходимо{" "}
+          <Link
+            to={ROUTES.SIGN_IN}
+            className="text-blue-900 underline hover:no-underline"
+          >
+            авторизоваться
+          </Link>
+        </div>
+      )}
+      {currentUser && (
+        <>
+          <form
+            onSubmit={onSubmit}
+            className="border border-teal-500 rounded-md p-3"
+          >
+            <Textarea
+              placeholder="Добавить комментарий"
+              rows={3}
+              maxLength={MAX_CHARACTERS}
+              onChange={(e) => setComment(e.target.value)}
+              value={comment}
+            />
+            <div className="flex justify-between items-center mt-5">
+              <p className="text-gray-500 text-xs">
+                Осталось символов: {MAX_CHARACTERS - comment.length}
+              </p>
+              <Button outline gradientDuoTone="purpleToBlue" type="submit">
+                Отправить
+              </Button>
+            </div>
+            {commentError && (
+              <Alert color="failure" className="mt-5">
+                {commentError}
+              </Alert>
+            )}
+          </form>
+        </>
+      )}
+    </div>
+  );
+};

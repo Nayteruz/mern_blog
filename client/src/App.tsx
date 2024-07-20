@@ -8,10 +8,12 @@ import OnlyAdminPrivateRoute from "./shared/UI/OnlyAdminPrivateRoute";
 import { CreatePost } from "./pages/CreatePost";
 import { UpdatePost } from "./pages/UpdatePost";
 import { Post } from "./pages/Post";
+import { ToTop } from "./shared/UI/ToTop";
 
 const App = () => {
   return (
     <BrowserRouter>
+      <ToTop />
       <Header />
       <div className="flex-1 flex flex-col">
         <Routes>
