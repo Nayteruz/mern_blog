@@ -1,18 +1,22 @@
 import moment from "moment";
-import { IComment, IUser } from "@/shared/types";
+import { IComment, IFetchError, IUser } from "@/shared/types";
 import { memo, useEffect, useState } from "react";
 import { FaThumbsUp } from "react-icons/fa";
 import { plural } from "@/shared/const/plural";
+import { Button, Textarea } from "flowbite-react";
 
 interface ICommentProps {
   comment: IComment;
   onLike: (commentId: string) => void;
+  onEdit: (commentId: string, editedContent: string) => void;
   userCurrent: IUser | null;
 }
 
 export const Comment = memo(
-  ({ comment, onLike, userCurrent }: ICommentProps) => {
+  ({ comment, onLike, userCurrent, onEdit }: ICommentProps) => {
     const [user, setUser] = useState<IUser | null>(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedContent, setEditedContent] = useState("");
     const likeForm = ["лайк", "лайка", "лайков"];
     const likePlural = `${comment.numberOfLikes} ${plural(likeForm, comment.numberOfLikes)}`;
     const isUserLike =
@@ -35,6 +39,33 @@ export const Comment = memo(
       getUser();
     }, [comment]);
 
+    const onToggleEdit = () => {
+      setIsEditing(true);
+      setEditedContent(comment.content);
+    };
+
+    const handleSave = async () => {
+      try {
+        const res = await fetch(`/api/comment/editComment/${comment._id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            content: editedContent,
+          }),
+        });
+
+        if (res.ok) {
+          setIsEditing(false);
+          onEdit(comment._id, editedContent);
+        }
+      } catch (error) {
+        const err = error as IFetchError;
+        console.log(err.message);
+      }
+    };
+
     return (
       <div className="flex p-4 border-b dark:border-gray-600 text-sm">
         <div className="flex-shrink-0 mr-3">
@@ -53,16 +84,59 @@ export const Comment = memo(
               {moment(comment.createdAt).fromNow()}
             </span>
           </div>
-          <p className="text-gray-500 pb-2">{comment.content}</p>
-          <div className="flex items-center pt-2 text-xs border-t dark:border-gray-700 max-w-fit gap-2">
-            <button
-              className={`text-gray-400 hover:text-blue-500 ${isUserLike ? "!text-blue-500" : ""}`}
-              onClick={() => onLike(comment._id)}
-            >
-              <FaThumbsUp className="text-sm" />
-            </button>
-            <p>{comment.numberOfLikes > 0 && likePlural}</p>
-          </div>
+          {isEditing ? (
+            <>
+              <Textarea
+                className="resize-none mb-2"
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+              />
+              <div className="flex items-center justify-end gap-2 text-xs">
+                <Button
+                  type="button"
+                  size="sm"
+                  gradientDuoTone="purpleToBlue"
+                  outline
+                  onClick={handleSave}
+                >
+                  Сохранить
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  gradientDuoTone="purpleToBlue"
+                  outline
+                  onClick={() => setIsEditing(false)}
+                >
+                  Отменить
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-500 pb-2">{comment.content}</p>
+              <div className="flex items-center pt-2 text-xs border-t dark:border-gray-700 max-w-fit gap-2">
+                <button
+                  className={`text-gray-400 hover:text-blue-500 ${isUserLike ? "!text-blue-500" : ""}`}
+                  onClick={() => onLike(comment._id)}
+                >
+                  <FaThumbsUp className="text-sm" />
+                </button>
+                <p>{comment.numberOfLikes > 0 && likePlural}</p>
+                {userCurrent &&
+                  (userCurrent._id === comment.userId ||
+                    userCurrent.isAdmin) && (
+                    <button
+                      type="button"
+                      className="text-gray-400 hover:text-blue-500"
+                      onClick={onToggleEdit}
+                    >
+                      Редактировать
+                    </button>
+                  )}
+              </div>
+            </>
+          )}
         </div>
       </div>
     );

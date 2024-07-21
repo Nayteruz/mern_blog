@@ -104,6 +104,19 @@ export const Comments = ({ postId }: ICommentsProps) => {
     [currentUser, navigate],
   );
 
+  const onEdit = (commentId: string, editedContent: string) => {
+    setComments((prevComments) =>
+      prevComments.map((comment) =>
+        comment._id === commentId
+          ? {
+              ...comment,
+              content: editedContent,
+            }
+          : comment,
+      ),
+    );
+  };
+
   return (
     <div className="max-w-2xl mx-auto w-full p-3">
       {currentUser ? (
@@ -179,6 +192,7 @@ export const Comments = ({ postId }: ICommentsProps) => {
               userCurrent={currentUser}
               comment={comment}
               onLike={onLike}
+              onEdit={onEdit}
             />
           ))}
         </>
