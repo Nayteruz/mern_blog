@@ -66,4 +66,6 @@ export interface IComment {
   postId: string;
   createdAt: string;
   updatedAt: string;
+  likes: string[];
+  numberOfLikes: number;
 }

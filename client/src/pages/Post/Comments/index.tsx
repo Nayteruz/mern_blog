@@ -2,8 +2,8 @@ import { useAppSelector } from "@/app/store/hooks";
 import { ROUTES } from "@/shared/const/routes";
 import { IComment, IFetchError } from "@/shared/types";
 import { Alert, Button, Textarea } from "flowbite-react";
-import { FormEvent, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { FormEvent, useCallback, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Comment } from "./Comment";
 
 interface ICommentsProps {
@@ -14,10 +14,10 @@ const MAX_CHARACTERS = 200;
 
 export const Comments = ({ postId }: ICommentsProps) => {
   const { currentUser } = useAppSelector((state) => state.user);
-  const [comment, setComment] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [comment, setComment] = useState<string>("");
   const [commentError, setCommentError] = useState("");
   const [comments, setComments] = useState<IComment[]>([]);
+  const navigate = useNavigate();
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -69,6 +69,40 @@ export const Comments = ({ postId }: ICommentsProps) => {
 
     fetchComments();
   }, [postId]);
+
+  const onLike = useCallback(
+    async (commentId: string) => {
+      try {
+        if (!currentUser) {
+          navigate(ROUTES.SIGN_IN);
+          return;
+        }
+
+        const res = await fetch(`/api/comment/likeComment/${commentId}`, {
+          method: "PUT",
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setComments((prevComments) =>
+            prevComments.map((comment) =>
+              comment._id === commentId
+                ? {
+                    ...comment,
+                    likes: data.likes,
+                    numberOfLikes: data.likes.length,
+                  }
+                : comment,
+            ),
+          );
+        }
+      } catch (error) {
+        const err = error as IFetchError;
+        console.log(err.message);
+      }
+    },
+    [currentUser, navigate],
+  );
 
   return (
     <div className="max-w-2xl mx-auto w-full p-3">
@@ -140,7 +174,12 @@ export const Comments = ({ postId }: ICommentsProps) => {
             </div>
           </div>
           {comments.map((comment) => (
-            <Comment key={comment._id} comment={comment} />
+            <Comment
+              key={comment._id}
+              userCurrent={currentUser}
+              comment={comment}
+              onLike={onLike}
+            />
           ))}
         </>
       )}
