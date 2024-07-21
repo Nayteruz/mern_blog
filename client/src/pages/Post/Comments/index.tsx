@@ -1,10 +1,11 @@
 import { useAppSelector } from "@/app/store/hooks";
 import { ROUTES } from "@/shared/const/routes";
 import { IComment, IFetchError } from "@/shared/types";
-import { Alert, Button, Textarea } from "flowbite-react";
+import { Alert, Button, Spinner, Textarea } from "flowbite-react";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Comment } from "./Comment";
+import { PopupConfirm } from "@/shared/UI/PopupConfirm";
 
 interface ICommentsProps {
   postId: string;
@@ -15,8 +16,13 @@ const MAX_CHARACTERS = 200;
 export const Comments = ({ postId }: ICommentsProps) => {
   const { currentUser } = useAppSelector((state) => state.user);
   const [comment, setComment] = useState<string>("");
+  const [deleteCommentId, setDeleteCommentId] = useState<string>("");
   const [commentError, setCommentError] = useState("");
   const [comments, setComments] = useState<IComment[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isSendingComment, setIsSendingComment] = useState(false);
+  const [likeCommentId, setLikeCommentId] = useState("");
   const navigate = useNavigate();
 
   const onSubmit = async (e: FormEvent) => {
@@ -25,6 +31,8 @@ export const Comments = ({ postId }: ICommentsProps) => {
     if (comment.length > MAX_CHARACTERS) {
       return;
     }
+
+    setIsSendingComment(true);
 
     try {
       const res = await fetch(`/api/comment/create`, {
@@ -45,10 +53,12 @@ export const Comments = ({ postId }: ICommentsProps) => {
         setComment("");
         setCommentError("");
         setComments((prevComments) => [data, ...prevComments]);
+        setIsSendingComment(false);
       }
     } catch (error) {
       const err = error as IFetchError;
       setCommentError(err.message);
+      setIsSendingComment(false);
     }
   };
 
@@ -78,6 +88,7 @@ export const Comments = ({ postId }: ICommentsProps) => {
           return;
         }
 
+        setLikeCommentId(commentId);
         const res = await fetch(`/api/comment/likeComment/${commentId}`, {
           method: "PUT",
         });
@@ -96,9 +107,11 @@ export const Comments = ({ postId }: ICommentsProps) => {
             ),
           );
         }
+        setLikeCommentId("");
       } catch (error) {
         const err = error as IFetchError;
         console.log(err.message);
+        setLikeCommentId("");
       }
     },
     [currentUser, navigate],
@@ -115,6 +128,45 @@ export const Comments = ({ postId }: ICommentsProps) => {
           : comment,
       ),
     );
+  };
+
+  const onDelete = async () => {
+    if (!currentUser) {
+      navigate(ROUTES.SIGN_IN);
+      return;
+    }
+
+    setIsDeleting(true);
+    setShowModal(false);
+
+    try {
+      const res = await fetch(`/api/comment/deleteComment/${deleteCommentId}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.log(data.message);
+        return;
+      }
+
+      setComments((prevComments) =>
+        prevComments.filter((comment) => comment._id !== deleteCommentId),
+      );
+
+      setDeleteCommentId("");
+      setIsDeleting(false);
+    } catch (error) {
+      const err = error as IFetchError;
+      console.log(err.message);
+      setIsDeleting(false);
+    }
+  };
+
+  const showModalPopup = (commentId: string) => {
+    setShowModal(true);
+    setDeleteCommentId(commentId);
   };
 
   return (
@@ -164,8 +216,20 @@ export const Comments = ({ postId }: ICommentsProps) => {
               <p className="text-gray-500 text-xs">
                 Осталось символов: {MAX_CHARACTERS - comment.length}
               </p>
-              <Button outline gradientDuoTone="purpleToBlue" type="submit">
-                Отправить
+              <Button
+                disabled={isSendingComment || comment.length > MAX_CHARACTERS}
+                outline
+                gradientDuoTone="purpleToBlue"
+                type="submit"
+              >
+                {isSendingComment ? (
+                  <span className="flex items-center gap-1">
+                    <Spinner size="sm" />
+                    Отправка ...
+                  </span>
+                ) : (
+                  "Отправить"
+                )}
               </Button>
             </div>
             {commentError && (
@@ -193,10 +257,21 @@ export const Comments = ({ postId }: ICommentsProps) => {
               comment={comment}
               onLike={onLike}
               onEdit={onEdit}
+              onDelete={showModalPopup}
+              isLoading={deleteCommentId === comment._id && isDeleting}
+              likeCommentId={likeCommentId}
             />
           ))}
         </>
       )}
+      <PopupConfirm
+        isOpen={showModal}
+        setIsOpen={setShowModal}
+        message="Вы уверены, что хотите удалить комментарий?"
+        onConfirm={onDelete}
+        ok="Да, я уверен"
+        cancel="Нет, передумал"
+      />
     </div>
   );
 };

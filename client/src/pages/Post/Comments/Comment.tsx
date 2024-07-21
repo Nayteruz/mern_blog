@@ -3,17 +3,28 @@ import { IComment, IFetchError, IUser } from "@/shared/types";
 import { memo, useEffect, useState } from "react";
 import { FaThumbsUp } from "react-icons/fa";
 import { plural } from "@/shared/const/plural";
-import { Button, Textarea } from "flowbite-react";
+import { Button, Spinner, Textarea } from "flowbite-react";
 
 interface ICommentProps {
   comment: IComment;
   onLike: (commentId: string) => void;
   onEdit: (commentId: string, editedContent: string) => void;
+  onDelete: (commentId: string) => void;
   userCurrent: IUser | null;
+  isLoading: boolean;
+  likeCommentId: string;
 }
 
 export const Comment = memo(
-  ({ comment, onLike, userCurrent, onEdit }: ICommentProps) => {
+  ({
+    comment,
+    onLike,
+    userCurrent,
+    onEdit,
+    onDelete,
+    isLoading,
+    likeCommentId,
+  }: ICommentProps) => {
     const [user, setUser] = useState<IUser | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editedContent, setEditedContent] = useState("");
@@ -21,6 +32,7 @@ export const Comment = memo(
     const likePlural = `${comment.numberOfLikes} ${plural(likeForm, comment.numberOfLikes)}`;
     const isUserLike =
       userCurrent && comment.likes.indexOf(userCurrent?._id) > -1;
+    const isLikeLoading = likeCommentId === comment._id;
 
     useEffect(() => {
       const getUser = async () => {
@@ -67,7 +79,12 @@ export const Comment = memo(
     };
 
     return (
-      <div className="flex p-4 border-b dark:border-gray-600 text-sm">
+      <div className="flex p-4 border-b dark:border-gray-600 text-sm relative">
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+            <Spinner size="xl" />
+          </div>
+        )}
         <div className="flex-shrink-0 mr-3">
           <img
             src={user?.profilePicture}
@@ -119,20 +136,34 @@ export const Comment = memo(
                 <button
                   className={`text-gray-400 hover:text-blue-500 ${isUserLike ? "!text-blue-500" : ""}`}
                   onClick={() => onLike(comment._id)}
+                  disabled={isLikeLoading}
                 >
-                  <FaThumbsUp className="text-sm" />
+                  {isLikeLoading ? (
+                    <Spinner size="xs" />
+                  ) : (
+                    <FaThumbsUp className="text-sm" />
+                  )}
                 </button>
                 <p>{comment.numberOfLikes > 0 && likePlural}</p>
                 {userCurrent &&
                   (userCurrent._id === comment.userId ||
                     userCurrent.isAdmin) && (
-                    <button
-                      type="button"
-                      className="text-gray-400 hover:text-blue-500"
-                      onClick={onToggleEdit}
-                    >
-                      Редактировать
-                    </button>
+                    <>
+                      <button
+                        type="button"
+                        className="text-gray-400 hover:text-blue-500"
+                        onClick={onToggleEdit}
+                      >
+                        Редактировать
+                      </button>
+                      <button
+                        type="button"
+                        className="text-gray-400 hover:text-red-500"
+                        onClick={() => onDelete(comment._id)}
+                      >
+                        Удалить
+                      </button>
+                    </>
                   )}
               </div>
             </>

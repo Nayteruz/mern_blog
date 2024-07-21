@@ -1,8 +1,8 @@
 import { useAppSelector } from "@/app/store/hooks";
 import { IFetchError, IFetchPosts, IPost } from "@/shared/types";
-import { Button, Modal, Table } from "flowbite-react";
+import { PopupConfirm } from "@/shared/UI/PopupConfirm";
+import { Table } from "flowbite-react";
 import { useEffect, useState } from "react";
-import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { Link } from "react-router-dom";
 
 const MAX_POSTS = 9;
@@ -162,30 +162,12 @@ export const DashPosts = () => {
       ) : (
         <p>Вы не написали еще ни одного поста</p>
       )}
-      <Modal
-        show={showModal}
-        onClose={() => setShowModal(false)}
-        popup
-        size="md"
-      >
-        <Modal.Header />
-        <Modal.Body>
-          <div className="text-center">
-            <HiOutlineExclamationCircle className="w-14 h-14 mx-auto mb-4 text-gray-400 dark:text-gray-200" />
-            <h3 className="mb-5 text-lg text-gray-500 dark:text-gray-400">
-              Вы действительно хотите удалить пост?
-            </h3>
-            <div className="flex md:flex-row flex-col justify-center gap-4 ">
-              <Button color="failure" onClick={onDelete}>
-                Да, я уверен
-              </Button>
-              <Button color="gray" onClick={() => setShowModal(false)}>
-                Нет, передумал
-              </Button>
-            </div>
-          </div>
-        </Modal.Body>
-      </Modal>
+      <PopupConfirm
+        isOpen={showModal}
+        setIsOpen={setShowModal}
+        message="Вы действительно хотите удалить пост?"
+        onConfirm={onDelete}
+      />
     </div>
   );
 };
