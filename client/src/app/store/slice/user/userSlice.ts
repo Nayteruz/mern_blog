@@ -1,15 +1,7 @@
+import { IUser } from "@/shared/types";
 import { createSlice } from "@reduxjs/toolkit";
 
-export interface ICurrentUser {
-  _id: string;
-  username: string;
-  email: string;
-  password: string;
-  profilePicture: string;
-  isAdmin: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+export interface ICurrentUser extends IUser {}
 
 interface IState {
   currentUser: ICurrentUser | null;

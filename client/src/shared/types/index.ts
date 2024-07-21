@@ -5,6 +5,17 @@ export interface IErrorServerData {
   status: number;
 }
 
+export interface IUser {
+  _id: string;
+  username: string;
+  email: string;
+  password: string;
+  profilePicture: string;
+  isAdmin: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface IFormData {
   username?: string;
   email?: string;
@@ -46,4 +57,13 @@ export interface IFetchUsers {
   users: ICurrentUser[];
   totalUsers: number;
   lastMonthUsers: number;
+}
+
+export interface IComment {
+  _id: string;
+  content: string;
+  userId: string;
+  postId: string;
+  createdAt: string;
+  updatedAt: string;
 }

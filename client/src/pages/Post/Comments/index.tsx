@@ -1,9 +1,10 @@
 import { useAppSelector } from "@/app/store/hooks";
 import { ROUTES } from "@/shared/const/routes";
-import { IFetchError } from "@/shared/types";
+import { IComment, IFetchError } from "@/shared/types";
 import { Alert, Button, Textarea } from "flowbite-react";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Comment } from "./Comment";
 
 interface ICommentsProps {
   postId: string;
@@ -16,6 +17,7 @@ export const Comments = ({ postId }: ICommentsProps) => {
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
   const [commentError, setCommentError] = useState("");
+  const [comments, setComments] = useState<IComment[]>([]);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -42,12 +44,31 @@ export const Comments = ({ postId }: ICommentsProps) => {
       if (res.ok) {
         setComment("");
         setCommentError("");
+        setComments((prevComments) => [data, ...prevComments]);
       }
     } catch (error) {
       const err = error as IFetchError;
       setCommentError(err.message);
     }
   };
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const res = await fetch(`/api/comment/getPostComments/${postId}`);
+        const data = await res.json();
+
+        if (res.ok) {
+          setComments(data);
+        }
+      } catch (error) {
+        const err = error as IFetchError;
+        console.log(err.message);
+      }
+    };
+
+    fetchComments();
+  }, [postId]);
 
   return (
     <div className="max-w-2xl mx-auto w-full p-3">
@@ -106,6 +127,21 @@ export const Comments = ({ postId }: ICommentsProps) => {
               </Alert>
             )}
           </form>
+        </>
+      )}
+      {comments.length === 0 ? (
+        <p className="text-sm my-5">Нет комментариев</p>
+      ) : (
+        <>
+          <div className="text-sm my-5 flex items-center gap-1">
+            <p>Комментарии</p>
+            <div className="border border-gray-400 py-1 px-2 rounded-sm">
+              <p>{comments.length}</p>
+            </div>
+          </div>
+          {comments.map((comment) => (
+            <Comment key={comment._id} comment={comment} />
+          ))}
         </>
       )}
     </div>
