@@ -9,6 +9,7 @@ import {
   HiArrowSmRight,
   HiDocumentText,
   HiOutlineUserGroup,
+  HiAnnotation,
 } from "react-icons/hi";
 import { Link, useLocation } from "react-router-dom";
 
@@ -76,6 +77,15 @@ export const DashSidebar = () => {
                   as="div"
                 >
                   Пользователи
+                </Sidebar.Item>
+              </Link>
+              <Link to={`${ROUTES.DASHBOARD}?tab=comments`}>
+                <Sidebar.Item
+                  active={tab === "comments"}
+                  icon={HiAnnotation}
+                  as="div"
+                >
+                  Комментарии
                 </Sidebar.Item>
               </Link>
             </>

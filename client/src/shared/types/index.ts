@@ -69,3 +69,9 @@ export interface IComment {
   likes: string[];
   numberOfLikes: number;
 }
+
+export interface IFetchComments {
+  comments: IComment[];
+  totalComments: number;
+  lastMonthComments: number;
+}

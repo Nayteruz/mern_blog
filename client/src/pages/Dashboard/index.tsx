@@ -4,6 +4,7 @@ import { DashPosts } from "./DashPosts";
 import { DashSidebar } from "./DashSidebar";
 import { DashProfile } from "./DashProfile";
 import { DashUsers } from "./DashUsers";
+import { DashComments } from "./DashComments";
 
 export const Dashboard = () => {
   const location = useLocation();
@@ -23,6 +24,7 @@ export const Dashboard = () => {
       {tab === "profile" && <DashProfile />}
       {tab === "posts" && <DashPosts />}
       {tab === "users" && <DashUsers />}
+      {tab === "comments" && <DashComments />}
     </div>
   );
 };

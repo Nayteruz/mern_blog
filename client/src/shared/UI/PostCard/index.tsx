@@ -7,12 +7,12 @@ interface IPostCardProps {
 
 export const PostCard = ({ post }: IPostCardProps) => {
   return (
-    <div className="group relative w-full border border-teal-500 hover:border-2 h-[400px] overflow-hidden rounded-lg  transition-all">
+    <div className="group relative w-full border border-teal-500 hover:border-2 h-[300px] overflow-hidden rounded-lg  transition-all">
       <Link to={`/post/${post.slug}`}>
         <img
           src={post.image}
           alt={post.title}
-          className="h-[260px] w-full object-cover group-hover:h-[200px] transition-all duration-300 z-20"
+          className="h-[200px] w-full object-cover group-hover:h-[150px] transition-all duration-300 z-20"
         />
       </Link>
       <div className="p-3 flex flex-col gap-2">
