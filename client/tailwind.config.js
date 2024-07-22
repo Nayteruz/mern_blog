@@ -10,6 +10,6 @@ export default {
   },
   plugins: [
     flowbite.plugin(),
-    tailwindScrollbar({ nocompatible: true }),
+    tailwindScrollbar({ nocompatible: true })
   ],
 };
