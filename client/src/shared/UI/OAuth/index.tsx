@@ -2,14 +2,13 @@ import { Button } from "flowbite-react";
 import { AiFillGoogleCircle } from "react-icons/ai";
 import { GoogleAuthProvider, signInWithPopup, getAuth } from "firebase/auth";
 import { app } from "@/app/firebase";
-import { useAppDispatch } from "@/app/store/hooks";
-import { signInSuccess } from "@/app/store/slice/user/userSlice";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/shared/const/routes";
+import useStore from "@/app/store/store.zustand";
 
 const OAuth = () => {
+  const { fetchSignInSuccess } = useStore();
   const auth = getAuth(app);
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const handleGoogleCLick = async () => {
     const provider = new GoogleAuthProvider();
@@ -33,7 +32,7 @@ const OAuth = () => {
       const data = await res.json();
 
       if (res.ok) {
-        dispatch(signInSuccess(data));
+        fetchSignInSuccess(data);
         navigate(ROUTES.HOME);
       }
     } catch (error) {

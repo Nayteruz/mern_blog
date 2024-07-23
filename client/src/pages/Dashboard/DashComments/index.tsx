@@ -1,4 +1,4 @@
-import { useAppSelector } from "@/app/store/hooks";
+import useStore from "@/app/store/store.zustand";
 import { IComment, IFetchComments, IFetchError } from "@/shared/types";
 import { PopupConfirm } from "@/shared/UI/PopupConfirm";
 import { Table } from "flowbite-react";
@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 const MAX_COMMENTS = 9;
 
 export const DashComments = () => {
-  const { currentUser } = useAppSelector((state) => state.user);
+  const { currentUser } = useStore();
   const [comments, setComments] = useState<IComment[]>([]);
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);

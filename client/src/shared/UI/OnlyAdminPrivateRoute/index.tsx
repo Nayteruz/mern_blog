@@ -1,9 +1,9 @@
-import { useAppSelector } from "@/app/store/hooks";
+import useStore from "@/app/store/store.zustand";
 import { ROUTES } from "@/shared/const/routes";
 import { Navigate, Outlet } from "react-router-dom";
 
 const OnlyAdminPrivateRoute = () => {
-  const { currentUser } = useAppSelector((state) => state.user);
+  const { currentUser } = useStore();
   return currentUser && currentUser?.isAdmin ? (
     <Outlet />
   ) : (

@@ -1,20 +1,15 @@
-import { useAppDispatch } from "@/app/store/hooks";
-import {
-  ICurrentUser,
-  deleteUserStart,
-  deleteUserSuccess,
-  deleteUserFailure,
-} from "@/app/store/slice/user/userSlice";
-import { IFetchError } from "@/shared/types";
+import useStore from "@/app/store/store.zustand";
+import { IFetchError, IUser } from "@/shared/types";
 import { PopupConfirm } from "@/shared/UI/PopupConfirm";
 import { useState } from "react";
 
 interface IDeleteButtonProps {
-  user: ICurrentUser | null;
+  user: IUser | null;
 }
 
 export const DeleteButton = ({ user }: IDeleteButtonProps) => {
-  const dispatch = useAppDispatch();
+  const { setErrorLoading, setStartLoading, fetchDeleteUserSuccess } =
+    useStore();
   const [showModal, setShowModal] = useState(false);
 
   const onDelete = async () => {
@@ -25,19 +20,19 @@ export const DeleteButton = ({ user }: IDeleteButtonProps) => {
     }
 
     try {
-      dispatch(deleteUserStart());
+      setStartLoading();
       const res = await fetch(`/api/user/delete/${user._id}`, {
         method: "DELETE",
       });
 
       if (res.ok) {
-        dispatch(deleteUserSuccess());
+        fetchDeleteUserSuccess();
       } else {
-        dispatch(deleteUserFailure("Произошла ошибка при удалении аккаунта"));
+        setErrorLoading("Произошла ошибка при удалении аккаунта");
       }
     } catch (error) {
       const err = error as IFetchError;
-      dispatch(deleteUserFailure(err.message));
+      setErrorLoading(err.message);
     }
   };
 

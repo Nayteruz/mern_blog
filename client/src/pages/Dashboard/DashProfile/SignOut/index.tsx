@@ -1,9 +1,8 @@
 import { IFetchError } from "@/shared/types";
-import { signoutUser } from "@/app/store/slice/user/userSlice";
-import { useAppDispatch } from "@/app/store/hooks";
+import useStore from "@/app/store/store.zustand";
 
 export const SignOut = () => {
-  const dispatch = useAppDispatch();
+  const { fetchSignOutSuccess } = useStore();
 
   const onCLick = async () => {
     try {
@@ -14,7 +13,7 @@ export const SignOut = () => {
       const data = await res.json();
 
       if (res.ok) {
-        dispatch(signoutUser());
+        fetchSignOutSuccess();
       } else {
         console.error(data.message);
       }

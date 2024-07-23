@@ -2,25 +2,23 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { Logo } from "@/shared/UI/Logo";
-import { IErrorServerData } from "@/shared/types";
+import { IFetchError, IUser } from "@/shared/types";
 import { IFormData } from "./types";
 import { formFields } from "./const";
 import { ROUTES } from "@/shared/const/routes";
-import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
-import {
-  signInStart,
-  signInSuccess,
-  signInFailure,
-} from "@/app/store/slice/user/userSlice";
 import OAuth from "@/shared/UI/OAuth";
+import useStore from "@/app/store/store.zustand";
 
 export const SignIn = () => {
-  const { error: errorMessage, loading } = useAppSelector(
-    (state) => state.user,
-  );
+  const {
+    error: errorMessage,
+    loading,
+    setErrorLoading,
+    setStartLoading,
+    fetchSignInSuccess,
+  } = useStore();
   const [formData, setFormData] = useState<IFormData>({});
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -30,11 +28,11 @@ export const SignIn = () => {
     e.preventDefault();
 
     if (!formData.email || !formData.password) {
-      return dispatch(signInFailure("All fields are required"));
+      return setErrorLoading("All fields are required");
     }
 
     try {
-      dispatch(signInStart());
+      setStartLoading();
       const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
@@ -45,16 +43,16 @@ export const SignIn = () => {
       const data = await res.json();
 
       if (data.success === false) {
-        dispatch(signInFailure(data.message));
+        setErrorLoading(data.message);
       }
 
       if (res.ok) {
-        dispatch(signInSuccess(data));
+        fetchSignInSuccess(data as IUser);
         navigate(ROUTES.HOME);
       }
     } catch (error) {
-      const err = error as IErrorServerData;
-      dispatch(signInFailure(err.message));
+      const err = error as IFetchError;
+      setErrorLoading(err.message);
     }
   };
 

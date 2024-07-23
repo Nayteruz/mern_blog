@@ -1,4 +1,3 @@
-import { useAppSelector } from "@/app/store/hooks";
 import { ROUTES } from "@/shared/const/routes";
 import { IComment, IFetchError } from "@/shared/types";
 import { Alert, Button, Spinner, Textarea } from "flowbite-react";
@@ -6,6 +5,7 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Comment } from "./Comment";
 import { PopupConfirm } from "@/shared/UI/PopupConfirm";
+import useStore from "@/app/store/store.zustand";
 
 interface ICommentsProps {
   postId: string;
@@ -14,7 +14,7 @@ interface ICommentsProps {
 const MAX_CHARACTERS = 200;
 
 export const Comments = ({ postId }: ICommentsProps) => {
-  const { currentUser } = useAppSelector((state) => state.user);
+  const { currentUser } = useStore();
   const [comment, setComment] = useState<string>("");
   const [deleteCommentId, setDeleteCommentId] = useState<string>("");
   const [commentError, setCommentError] = useState("");

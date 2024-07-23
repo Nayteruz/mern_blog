@@ -4,17 +4,12 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { FaMoon, FaSun } from "react-icons/fa";
 import { Logo } from "../Logo";
 import { ROUTES } from "@/shared/const/routes";
-import { useAppSelector } from "@/app/store/hooks";
-import { useAppDispatch } from "@/app/store/hooks";
-import { toggleTheme } from "@/app/store/slice/theme/themeSlice";
-import { signoutUser } from "@/app/store/slice/user/userSlice";
 import { IFetchError } from "@/shared/types";
+import useStore from "@/app/store/store.zustand";
 
 export const Header = () => {
+  const { theme, toggleTheme, currentUser, fetchSignOutSuccess } = useStore();
   const { pathname } = useLocation();
-  const { currentUser } = useAppSelector((state) => state.user);
-  const { theme } = useAppSelector((state) => state.theme);
-  const dispatch = useAppDispatch();
   const links: { label: string; path: string }[] = [
     { label: "Главная", path: ROUTES.HOME },
     { label: "О нас", path: ROUTES.ABOUT },
@@ -30,7 +25,7 @@ export const Header = () => {
       const data = await res.json();
 
       if (res.ok) {
-        dispatch(signoutUser());
+        fetchSignOutSuccess();
       } else {
         console.error(data.message);
       }
@@ -59,7 +54,7 @@ export const Header = () => {
           className="w-12 h-10 hidden sm:inline"
           color="gray"
           pill
-          onClick={() => dispatch(toggleTheme())}
+          onClick={toggleTheme}
         >
           {theme === "light" ? <FaSun /> : <FaMoon />}
         </Button>

@@ -6,12 +6,12 @@ import { CircularProgress } from "@/shared/UI/CircularProgress";
 import { useUploadImage } from "@/shared/hooks/useUploadImage";
 import { useNavigate, useParams } from "react-router-dom";
 import { ROUTES } from "@/shared/const/routes";
-import { useAppSelector } from "@/app/store/hooks";
 import { TFormData } from "@/shared/types";
+import useStore from "@/app/store/store.zustand";
 
 export const UpdatePost = () => {
   const { postId } = useParams();
-  const { currentUser } = useAppSelector((state) => state.user);
+  const { currentUser } = useStore();
   const [file, setFile] = useState<File | null>(null);
   const [formData, setFormData] = useState<TFormData>({} as TFormData);
   const [publishError, setPublishError] = useState<string | null>(null);

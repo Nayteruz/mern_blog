@@ -33,6 +33,7 @@ export type TFormData = {
 
 export interface IFetchError {
   message: string;
+  status: number;
 }
 
 export interface IPost {

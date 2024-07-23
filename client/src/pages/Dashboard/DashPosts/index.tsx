@@ -1,4 +1,4 @@
-import { useAppSelector } from "@/app/store/hooks";
+import useStore from "@/app/store/store.zustand";
 import { IFetchError, IFetchPosts, IPost } from "@/shared/types";
 import { PopupConfirm } from "@/shared/UI/PopupConfirm";
 import { Table } from "flowbite-react";
@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 const MAX_POSTS = 9;
 
 export const DashPosts = () => {
-  const { currentUser } = useAppSelector((state) => state.user);
+  const { currentUser } = useStore();
   const [userPosts, setUserPosts] = useState<IPost[]>([]);
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);

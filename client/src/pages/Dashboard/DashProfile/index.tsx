@@ -1,30 +1,27 @@
 import { Button, TextInput, Alert } from "flowbite-react";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { IFetchError, IFormData } from "@/shared/types";
-import {
-  updateUserStart,
-  updateUserSuccess,
-  updateUserFailure,
-} from "@/app/store/slice/user/userSlice";
 import { Avatar } from "./Avatar";
 import { DeleteButton } from "./DeleteButton";
 import { SignOut } from "./SignOut";
 import { Link } from "react-router-dom";
 import { ROUTES } from "@/shared/const/routes";
+import useStore from "@/app/store/store.zustand";
 
 export const DashProfile = () => {
   const {
-    currentUser,
-    loading,
     error: userSliceError,
-  } = useAppSelector((state) => state.user);
+    loading,
+    currentUser,
+    setErrorLoading,
+    setStartLoading,
+    fetchUpdateUserSuccess,
+  } = useStore();
   const [isImageUploading, setIsImageUploading] = useState<boolean>(false);
   const [formData, setFormData] = useState<IFormData>({});
   const [userUpdateSuccess, setUserUpdateSuccess] = useState<string | null>(
     null,
   );
-  const dispatch = useAppDispatch();
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -32,16 +29,16 @@ export const DashProfile = () => {
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    dispatch(updateUserStart());
+    setStartLoading();
     setUserUpdateSuccess("");
 
     if (Object.keys(formData).length === 0) {
-      dispatch(updateUserFailure("Нет заполненных полей"));
+      setErrorLoading("Нет заполненных полей");
       return;
     }
 
     if (isImageUploading) {
-      dispatch(updateUserFailure("Дождитесь загрузки картинки"));
+      setErrorLoading("Дождитесь загрузки картинки");
       return;
     }
 
@@ -56,15 +53,14 @@ export const DashProfile = () => {
       const data = await res.json();
 
       if (res.ok) {
-        dispatch(updateUserSuccess(data));
+        fetchUpdateUserSuccess(data);
         setUserUpdateSuccess("Профиль успешно обновлен");
       } else {
-        dispatch(updateUserFailure(data.message));
+        setErrorLoading(data.message);
       }
     } catch (error) {
       const err = error as IFetchError;
-
-      dispatch(updateUserFailure(err.message));
+      setErrorLoading(err.message);
     } finally {
       setFormData({});
     }

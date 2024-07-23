@@ -1,5 +1,5 @@
-import { useAppSelector } from "@/app/store/hooks";
 import { ICurrentUser } from "@/app/store/slice/user/userSlice";
+import useStore from "@/app/store/store.zustand";
 import { IFetchError, IFetchUsers } from "@/shared/types";
 import { PopupConfirm } from "@/shared/UI/PopupConfirm";
 import { Table } from "flowbite-react";
@@ -9,7 +9,7 @@ import { FaCheck, FaTimes } from "react-icons/fa";
 const MAX_USERS = 9;
 
 export const DashUsers = () => {
-  const { currentUser } = useAppSelector((state) => state.user);
+  const { currentUser } = useStore();
   const [users, setUsers] = useState<ICurrentUser[]>([]);
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);

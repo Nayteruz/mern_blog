@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { Sidebar } from "flowbite-react";
 import { ROUTES } from "@/shared/const/routes";
 import { IFetchError } from "@/shared/types";
-import { signoutUser } from "@/app/store/slice/user/userSlice";
-import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import {
   HiUser,
   HiArrowSmRight,
@@ -12,12 +10,12 @@ import {
   HiAnnotation,
 } from "react-icons/hi";
 import { Link, useLocation } from "react-router-dom";
+import useStore from "@/app/store/store.zustand";
 
 export const DashSidebar = () => {
+  const { currentUser, fetchSignOutSuccess } = useStore();
   const location = useLocation();
   const [tab, setTab] = useState("");
-  const dispatch = useAppDispatch();
-  const { currentUser } = useAppSelector((state) => state.user);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -34,7 +32,7 @@ export const DashSidebar = () => {
       const data = await res.json();
 
       if (res.ok) {
-        dispatch(signoutUser());
+        fetchSignOutSuccess();
       } else {
         console.error(data.message);
       }
