@@ -5,6 +5,7 @@ import { DashSidebar } from "./DashSidebar";
 import { DashProfile } from "./DashProfile";
 import { DashUsers } from "./DashUsers";
 import { DashComments } from "./DashComments";
+import { Board } from "./Board";
 
 export const Dashboard = () => {
   const location = useLocation();
@@ -25,6 +26,7 @@ export const Dashboard = () => {
       {tab === "posts" && <DashPosts />}
       {tab === "users" && <DashUsers />}
       {tab === "comments" && <DashComments />}
+      {tab === "dash" && <Board />}
     </div>
   );
 };
