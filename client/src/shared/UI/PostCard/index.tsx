@@ -3,11 +3,14 @@ import { Link } from "react-router-dom";
 
 interface IPostCardProps {
   post: IPost;
+  className?: string;
 }
 
-export const PostCard = ({ post }: IPostCardProps) => {
+export const PostCard = ({ post, className = "" }: IPostCardProps) => {
   return (
-    <div className="group relative w-full border border-teal-500 hover:border-2 h-[300px] overflow-hidden rounded-lg  transition-all">
+    <div
+      className={`group relative w-full border border-teal-500 hover:border-2 h-[300px] overflow-hidden rounded-lg  transition-all ${className}`}
+    >
       <Link to={`/post/${post.slug}`}>
         <img
           src={post.image}

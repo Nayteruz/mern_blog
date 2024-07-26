@@ -9,6 +9,7 @@ import { CreatePost } from "./pages/CreatePost";
 import { UpdatePost } from "./pages/UpdatePost";
 import { Post } from "./pages/Post";
 import { ToTop } from "./shared/UI/ToTop";
+import { Search } from "./pages/Search";
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
           </Route>
           <Route path={ROUTES.POST_SLUG} element={<Post />} />
           <Route path={ROUTES.PROJECTS} element={<Projects />} />
+          <Route path={ROUTES.SEARCH} element={<Search />} />
         </Routes>
       </div>
       <Footer />
