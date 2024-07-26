@@ -1,6 +1,5 @@
-import { ICurrentUser } from "@/app/store/slice/user/userSlice";
 import useStore from "@/app/store/store.zustand";
-import { IFetchError, IFetchUsers } from "@/shared/types";
+import { IFetchError, IFetchUsers, IUser } from "@/shared/types";
 import { PopupConfirm } from "@/shared/UI/PopupConfirm";
 import { Table } from "flowbite-react";
 import { useEffect, useState } from "react";
@@ -10,7 +9,7 @@ const MAX_USERS = 9;
 
 export const DashUsers = () => {
   const { currentUser } = useStore();
-  const [users, setUsers] = useState<ICurrentUser[]>([]);
+  const [users, setUsers] = useState<IUser[]>([]);
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [userIdToDelete, setUserIdToDelete] = useState("");

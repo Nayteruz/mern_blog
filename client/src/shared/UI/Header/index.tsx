@@ -12,7 +12,7 @@ export const Header = () => {
   const { theme, toggleTheme, currentUser, fetchSignOutSuccess } = useStore();
   const location = useLocation();
   const navigate = useNavigate();
-  const pathname = location;
+  const { pathname } = location;
   const links: { label: string; path: string }[] = [
     { label: "Главная", path: ROUTES.HOME },
     { label: "О нас", path: ROUTES.ABOUT },
